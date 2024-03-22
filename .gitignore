@@ -1,0 +1,7 @@
+# Ignore model files
+
+movies.pkl
+
+Data/
+
+similarity.pkl
