@@ -2,6 +2,7 @@ import pickle
 import streamlit as st
 import requests
 
+# Set background color and text color for better visibility
 st.markdown(
     """
     <style>
@@ -14,6 +15,7 @@ st.markdown(
     unsafe_allow_html=True
 )
 
+# Function to fetch movie poster using movie ID
 def fetch_poster(movie_id):
     url = "https://api.themoviedb.org/3/movie/{}?api_key=8265bd1679663a7ea12ac168da84d2e8&language=en-US".format(movie_id)
     data = requests.get(url)
@@ -22,29 +24,35 @@ def fetch_poster(movie_id):
     full_path = "https://image.tmdb.org/t/p/w500/" + poster_path
     return full_path
 
+# Header for the movie recommender system
 st.header('Movie Recommender System')
+
+# Load movie data and similarity matrix
 movies = pickle.load(open('movies.pkl','rb'))
 similarity = pickle.load(open('similarity.pkl','rb'))
 
+# Dropdown to select a movie
 movie_list = movies['title'].values
 selected_movie = st.selectbox(
     "Type or select a movie from the dropdown",
     movie_list
 )
 
+# Function to recommend similar movies
 def recommend(movie):
     index = movies[movies['title'] == movie].index[0]
     distances = sorted(list(enumerate(similarity[index])), reverse=True, key=lambda x: x[1])
-    recommended_movie_names = []
+    recommended_movie_names = [] 
     recommended_movie_posters = []
-    for i in distances[1:6]:
-        # fetch the movie poster
-        movie_id = movies.iloc[i[0]].movie_id
+    for i in distances[1:6]:  
+        # Fetch the movie poster
+        movie_id = movies.iloc[i[0]].movie_id 
         recommended_movie_posters.append(fetch_poster(movie_id))
         recommended_movie_names.append(movies.iloc[i[0]].title)
 
-    return recommended_movie_names,recommended_movie_posters
+    return recommended_movie_names, recommended_movie_posters
 
+# Button to show movie recommendations
 if st.button('Show Recommendation'):
     recommended_movie_names, recommended_movie_posters = recommend(selected_movie)
     
@@ -79,4 +87,3 @@ if st.button('Show Recommendation'):
                     st.write("Popularity:", movie_details['popularity'])
                     st.write("Original Language:", movie_details['original_language'])
                     st.write("---")
-
